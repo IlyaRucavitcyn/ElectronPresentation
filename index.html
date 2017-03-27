@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Electron</title>
+</head>
+
+<body>
+    <h1>Electron demo.</h1>
+    <button id="ipcButtonSync" type="button" name="button">SYNC message via IPC</button>
+    <button id="ipcButtonAsync" type="button" name="button">ASYNC message via IPC</button>
+    <script>
+        window.onload = () => {
+            const fs = require('fs'),
+                  p = document.createElement('p'),
+                  {ipcRenderer} = require("electron"),
+                  ipcButtonSync = document.getElementById('ipcButtonSync'),
+                  ipcButtonAsync = document.getElementById('ipcButtonAsync');
+
+            p.textContent = fs.readFileSync('electron.txt');
+            document.body.appendChild(p);
+
+            // ipcSync
+            ipcButtonSync.onclick = () => {
+                let response = ipcRenderer.sendSync("synClick", "Button clicked SYNC"),
+                    returnedMessage = document.createElement("h2");
+                returnedMessage.innerHTML = response;
+                document.body.appendChild(returnedMessage);
+            };
+
+            // ipcAsync
+            ipcButtonAsync.onclick = () => {
+                ipcRenderer.send("asynClick", "Button clicked ASYNC");
+                ipcRenderer.on("asyncClickResponse", (e, arg) => {
+                    let returnedMessage = document.createElement("h2");
+                    returnedMessage.innerHTML = arg;
+                    document.body.appendChild(returnedMessage);
+                });
+            };
+        }
+    </script>
+</body>
+
+</html>
